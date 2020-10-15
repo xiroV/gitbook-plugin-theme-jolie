@@ -29,6 +29,7 @@
 {% block body %}
 <div class="book">
     <div class="book-summary">
+        <select id="versions" name="versions" onChange="changeVersion(value)"></select>
         {% block book_sidebar %}
             {% block search_input %}{% endblock %}
             {% block book_summary %}
@@ -79,6 +80,31 @@
         gitbook.push(function() {
             gitbook.page.hasChanged({{ template.getJSContext()|dump|safe }});
         });
+    </script>
+
+    <script>
+        (function() {
+            var elm = document.getElementById("versions"),
+                df = document.createDocumentFragment();
+            getVersions().then(response => {
+                return response.json();
+            }).then(json => {
+                for (var v = 0; v < json.length; v++) {
+                    var option = document.createElement('option');
+                    option.value = json[v].name;
+
+                    const currentPath = window.location.pathname;
+                    const currentVersion = currentPath.split("/")[1];
+                    if (currentVersion === json[v].name) {
+                        option.selected = true;
+                    }
+
+                    option.appendChild(document.createTextNode(json[v].name));
+                    df.appendChild(option);
+                }
+                elm.appendChild(df);
+            })
+        })();
     </script>
 </div>
 {% endblock %}
